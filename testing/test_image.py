@@ -35,7 +35,6 @@ def draw_prediction(image, prediction, confidence_threshold=0.3):
 if __name__ == '__main__':
     num_classes = 54
 
-
     #dict_path = '../customModelTraining/model_epoch_5.pth'
     model = torchvision.models.detection.fasterrcnn_resnet50_fpn(weights=FasterRCNN_ResNet50_FPN_Weights.DEFAULT)
     in_features = model.roi_heads.box_predictor.cls_score.in_features
