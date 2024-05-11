@@ -35,13 +35,13 @@ def draw_prediction(image, prediction, confidence_threshold=0.3):
 if __name__ == '__main__':
     num_classes = 54
 
-    #dict_path = '../customModelTraining/model_epoch_5.pth'
+    #dict_path = '../checkpoint_epoch_30.pth'
     model = torchvision.models.detection.fasterrcnn_resnet50_fpn(weights=FasterRCNN_ResNet50_FPN_Weights.DEFAULT)
     in_features = model.roi_heads.box_predictor.cls_score.in_features
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
     num_of_pixels = 1024
     model.eval()
-    image_path = '../customModelTraining/WhatsApp Image 2024-05-10 at 11.39.36.jpeg'
+    image_path = '../WhatsApp Image 2024-05-10 at 11.39.36.jpeg'
     #image_path = '../../../total/0a246d3b-afb8-4c23-9dc3-2038ecb4a2b2/original_image.png'
     image = tv_tensors.Image(PIL.Image.open(image_path).convert("RGB"))
     image = image.float() / 255.0
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     ])
     image=transform(image)
 
-    checkpoint_full_path = '../customModelTraining/checkpoint_epoch_21.pth'
+    checkpoint_full_path = '../models/checkpoint_epoch_30.pth'
     checkpoint=torch.load(checkpoint_full_path,map_location=torch.device('cpu'))
     model.load_state_dict(checkpoint['state_dict'])
 
@@ -64,4 +64,4 @@ if __name__ == '__main__':
     print(prediction)
 
     #draw_prediction(image, prediction[0], confidence_threshold=0.3).show()
-    plot_sample(image, prediction, confidence_threshold=0.65)
+    plot_sample(image, prediction, confidence_threshold=0.75)

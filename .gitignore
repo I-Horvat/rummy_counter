@@ -1,3 +1,5 @@
 images
 .idea
 models
+__pycache__
+*.jpeg
