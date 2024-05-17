@@ -24,9 +24,17 @@ class CardDataset(Dataset):
         for folder in os.listdir(self.root_dir):
             if os.path.isdir(os.path.join(self.root_dir, folder)):
                 json_path = os.path.join(self.root_dir, folder, 'regions.json')
-                with open(json_path, 'r', encoding='utf-8') as json_file:
-                    json_data = json.load(json_file)
-                    data[folder] = json_data
+                if os.path.exists(json_path):
+                    try:
+                        with open(json_path, 'r', encoding='utf-8') as json_file:
+                            json_data = json.load(json_file)
+                            data[folder] = json_data
+                    except json.JSONDecodeError:
+                        print(f"Error decoding JSON for {json_path}. File might be empty or malformed.")
+                        data[folder] = []
+                else:
+                    print(f"JSON file does not exist: {json_path}")
+                    data[folder] = []
         return data
 
     def __len__(self):
@@ -96,6 +104,13 @@ class CardDataset(Dataset):
 
     def load_regions(self, image_name):
         json_path = os.path.join(self.root_dir, image_name, 'regions.json')
-        with open(json_path, 'r', encoding='utf-8') as json_file:
-            json_data = json.load(json_file)
-        return json_data
+        try:
+            with open(json_path, 'r', encoding='utf-8') as json_file:
+                json_data = json.load(json_file)
+            return json_data
+        except json.JSONDecodeError:
+            print(f"Error decoding JSON for {json_path}. File might be empty or malformed.")
+            return []
+        except FileNotFoundError:
+            print(f"JSON file does not exist: {json_path}")
+            return []
