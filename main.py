@@ -2,10 +2,12 @@ from flask import Flask, request, jsonify
 from PIL import Image
 import io
 
+from flask_cors import CORS
+
 from testing.test_image import  process_image
 
 app = Flask(__name__)
-
+CORS(app)
 
 @app.route('/upload', methods=['POST'])
 def upload_image():
