@@ -14,12 +14,6 @@ def plot_samples(dataset, num_samples):
         image = (255 * image).byte()
         boxes = target['boxes']
         labels = target['labels']
-        # labels = [str(label.item()) for label in target['labels']]
-        # image_tensor=draw_bounding_boxes(image, boxes,labels=labels,width=15,font_size=30,font=default_font_path)
-        # plt.figure(figsize=(8, 6))
-        # plt.imshow(image_tensor.permute(1, 2, 0))
-        # plt.title(dataset.image_names[i])
-        # plt.show()
         plot_sample_default(image, boxes, labels, dataset.image_names[i])
 
 

@@ -44,14 +44,32 @@ def print_image_sizes(image_folder):
             with Image.open(img_path) as img:
                 width, height = img.size
                 print(f"Image: {file} - Width: {width}px, Height: {height}px")
+def calculate_iou(bbox1, bbox2):
+    x1, y1, x2, y2 = bbox1
+    x1_p, y1_p, x2_p, y2_p = bbox2
 
-def place_images_on_background(background, images, min_area=12000):
+    xi1 = max(x1, x1_p)
+    yi1 = max(y1, y1_p)
+    xi2 = min(x2, x2_p)
+    yi2 = min(y2, y2_p)
+
+    inter_area = max(0, xi2 - xi1) * max(0, yi2 - yi1)
+
+    bbox1_area = (x2 - x1) * (y2 - y1)
+    bbox2_area = (x2_p - x1_p) * (y2_p - y1_p)
+
+    union_area = bbox1_area + bbox2_area - inter_area
+
+    iou = inter_area / union_area
+
+    return iou
+def place_images_on_background(background, images, min_area=12000, max_iou=0.8):
     max_width = background.width
     max_height = background.height
     num_images = random.randint(2, 5)
     selected_images = random.sample(images, min(num_images, len(images)))
     metadata = []
-    placed_images = []
+    placed_bboxes = []
 
     for img, label in selected_images:
         img = resize_image_if_needed(img, max_width // 2, max_height // 2)
@@ -60,49 +78,35 @@ def place_images_on_background(background, images, min_area=12000):
         pos_x = random.randint(0, max_x)
         pos_y = random.randint(0, max_y)
 
-        # Define the initial bounding box for the image
         bbox = [pos_x, pos_y, pos_x + img.width, pos_y + img.height]
-
-        # Adjust the bounding box based on overlaps with previously placed images
-        for other_pos_x, other_pos_y, other_img in placed_images:
-            other_bbox = [other_pos_x, other_pos_y, other_pos_x + other_img.width, other_pos_y + other_img.height]
-            if (bbox[0] < other_bbox[2] and bbox[2] > other_bbox[0] and
-                    bbox[1] < other_bbox[3] and bbox[3] > other_bbox[1]):
-                # Adjust bounding box to avoid overlap
-                if bbox[0] < other_bbox[2] and bbox[2] > other_bbox[0]:
-                    if bbox[0] < other_bbox[0]:
-                        bbox[0] = other_bbox[0]
-                    if bbox[2] > other_bbox[2]:
-                        bbox[2] = other_bbox[2]
-                if bbox[1] < other_bbox[3] and bbox[3] > other_bbox[1]:
-                    if bbox[1] < other_bbox[1]:
-                        bbox[1] = other_bbox[1]
-                    if bbox[3] > other_bbox[3]:
-                        bbox[3] = other_bbox[3]
-
         bbox = check_bbox_integrity(bbox, max_width, max_height, min_area)
 
         if bbox is not None:
-            x1, y1, x2, y2 = bbox
-            visible_img = img.crop((x1 - pos_x, y1 - pos_y, x2 - pos_x, y2 - pos_y))
-            background.paste(visible_img, (x1, y1), visible_img)
+            overlap = False
+            for placed_bbox in placed_bboxes:
+                if calculate_iou(bbox, placed_bbox) > max_iou:
+                    overlap = True
+                    break
 
-            region_id = str(uuid.uuid4())
-            tag_id = str(uuid.uuid4())
-            created_time = datetime.now().isoformat()
+            if not overlap:
+                x1, y1, x2, y2 = bbox
+                background.paste(img, (pos_x, pos_y), img)
+                placed_bboxes.append(bbox)
 
-            metadata.append({
-                "regionId": region_id,
-                "tagName": label,
-                "created": created_time,
-                "tagId": tag_id,
-                "left": x1 / background.width,
-                "top": y1 / background.height,
-                "width": (x2 - x1) / background.width,
-                "height": (y2 - y1) / background.height
-            })
+                region_id = str(uuid.uuid4())
+                tag_id = str(uuid.uuid4())
+                created_time = datetime.now().isoformat()
 
-            placed_images.append((pos_x, pos_y, img))
+                metadata.append({
+                    "regionId": region_id,
+                    "tagName": label,
+                    "created": created_time,
+                    "tagId": tag_id,
+                    "left": x1 / background.width,
+                    "top": y1 / background.height,
+                    "width": (x2 - x1) / background.width,
+                    "height": (y2 - y1) / background.height
+                })
 
     return background, metadata
 
