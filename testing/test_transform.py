@@ -48,7 +48,7 @@ transform = v2.Compose([
 
 # card_dataset = CardDataset(root_dir='../../../data_augmentation/cleaned_and_total', transform=transform, num_of_pixels=num_of_pixels)
 # card_dataset = CardDataset(root_dir='../../../data_augmentation/augmented', transform=transform, num_of_pixels=num_of_pixels)
-card_dataset = CardDataset(root_dir='../dataset_generator/generated_dataset', transform=transform, num_of_pixels=num_of_pixels)
+card_dataset = CardDataset(root_dir='../dataset_generator/generated_dataset2', transform=transform, num_of_pixels=num_of_pixels)
 
 
 plot_samples(card_dataset,10)

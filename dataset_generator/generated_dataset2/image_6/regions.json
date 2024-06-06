@@ -1,0 +1,22 @@
+[
+    {
+        "regionId": "a346d88d-e7f8-411d-a3bc-8f8ff984b4fd",
+        "tagName": "9♣",
+        "created": "2024-06-06T21:45:19.215810",
+        "tagId": "58d596bd-525a-4f3e-acdc-cf3706f922a7",
+        "left": 0.1337890625,
+        "top": 0.029296875,
+        "width": 0.3447265625,
+        "height": 0.5
+    },
+    {
+        "regionId": "90d9b069-1279-4e5a-a417-0328dc10e3c1",
+        "tagName": "K♠",
+        "created": "2024-06-06T21:45:19.236496",
+        "tagId": "75bcbb42-035d-450d-8e62-e42fa6bab73f",
+        "left": 0.6181640625,
+        "top": 0.2373046875,
+        "width": 0.375,
+        "height": 0.5
+    }
+]

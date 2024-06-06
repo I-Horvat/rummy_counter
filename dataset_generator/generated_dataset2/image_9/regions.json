@@ -1,0 +1,32 @@
+[
+    {
+        "regionId": "6cbcf3cb-af95-47c9-bff4-d93b5cd99fc1",
+        "tagName": "J♠",
+        "created": "2024-06-06T21:45:20.169793",
+        "tagId": "ac4d65ec-397c-4066-9998-24ce69692645",
+        "left": 0.078125,
+        "top": 0.2646484375,
+        "width": 0.3720703125,
+        "height": 0.5
+    },
+    {
+        "regionId": "7df396cf-a1db-4ca3-9f9e-21fdde8fb189",
+        "tagName": "10♥",
+        "created": "2024-06-06T21:45:20.194961",
+        "tagId": "74e6ccf7-d824-40cc-912f-f21e1a891e87",
+        "left": 0.1259765625,
+        "top": 0.3447265625,
+        "width": 0.32421875,
+        "height": 0.419921875
+    },
+    {
+        "regionId": "a6feea3f-c2a3-43bc-8d99-921f8229e698",
+        "tagName": "K♦",
+        "created": "2024-06-06T21:45:20.198005",
+        "tagId": "8b4de4e2-c439-434e-bd07-3e8426ca1eac",
+        "left": 0.5390625,
+        "top": 0.08984375,
+        "width": 0.375,
+        "height": 0.5
+    }
+]

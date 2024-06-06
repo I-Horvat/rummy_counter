@@ -4,3 +4,4 @@ models
 __pycache__
 *.jpeg
 tensorboard_logs
+dataset_generator/generated_dataset

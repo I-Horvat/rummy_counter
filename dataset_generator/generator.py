@@ -1,10 +1,27 @@
 import os
 import random
+import sys
+
 from PIL import Image
 import uuid
 import json
 from datetime import datetime
 import shutil
+higher_level_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(higher_level_path)
+
+def check_bbox_integrity(bbox, image_width, image_height, min_area=12000):
+    x1, y1, x2, y2 = bbox
+    x1 = max(0, x1)
+    y1 = max(0, y1)
+    x2 = min(image_width, x2)
+    y2 = min(image_height, y2)
+
+    if x2 > x1 and y2 > y1:
+        area = (x2 - x1) * (y2 - y1)
+        if area >= min_area:
+            return [x1, y1, x2, y2]
+    return None
 
 def load_images(image_folder):
     images = []
@@ -28,13 +45,14 @@ def print_image_sizes(image_folder):
                 width, height = img.size
                 print(f"Image: {file} - Width: {width}px, Height: {height}px")
 
-def place_images_on_background(background, images):
+def place_images_on_background(background, images, min_area=12000):
     max_width = background.width
     max_height = background.height
     num_images = random.randint(2, 5)
     selected_images = random.sample(images, min(num_images, len(images)))
     metadata = []
     placed_images = []
+
     for img, label in selected_images:
         img = resize_image_if_needed(img, max_width // 2, max_height // 2)
         max_x = background.width - img.width
@@ -42,22 +60,49 @@ def place_images_on_background(background, images):
         pos_x = random.randint(0, max_x)
         pos_y = random.randint(0, max_y)
 
-        background.paste(img, (pos_x, pos_y), img)
+        # Define the initial bounding box for the image
+        bbox = [pos_x, pos_y, pos_x + img.width, pos_y + img.height]
 
-        region_id = str(uuid.uuid4())
-        tag_id = str(uuid.uuid4())
-        created_time = datetime.now().isoformat()
+        # Adjust the bounding box based on overlaps with previously placed images
+        for other_pos_x, other_pos_y, other_img in placed_images:
+            other_bbox = [other_pos_x, other_pos_y, other_pos_x + other_img.width, other_pos_y + other_img.height]
+            if (bbox[0] < other_bbox[2] and bbox[2] > other_bbox[0] and
+                    bbox[1] < other_bbox[3] and bbox[3] > other_bbox[1]):
+                # Adjust bounding box to avoid overlap
+                if bbox[0] < other_bbox[2] and bbox[2] > other_bbox[0]:
+                    if bbox[0] < other_bbox[0]:
+                        bbox[0] = other_bbox[0]
+                    if bbox[2] > other_bbox[2]:
+                        bbox[2] = other_bbox[2]
+                if bbox[1] < other_bbox[3] and bbox[3] > other_bbox[1]:
+                    if bbox[1] < other_bbox[1]:
+                        bbox[1] = other_bbox[1]
+                    if bbox[3] > other_bbox[3]:
+                        bbox[3] = other_bbox[3]
 
-        metadata.append({
-            "regionId": region_id,
-            "tagName": label,
-            "created": created_time,
-            "tagId": tag_id,
-            "left": pos_x / background.width,
-            "top": pos_y / background.height,
-            "width": img.width / background.width,
-            "height": img.height / background.height
-        })
+        bbox = check_bbox_integrity(bbox, max_width, max_height, min_area)
+
+        if bbox is not None:
+            x1, y1, x2, y2 = bbox
+            visible_img = img.crop((x1 - pos_x, y1 - pos_y, x2 - pos_x, y2 - pos_y))
+            background.paste(visible_img, (x1, y1), visible_img)
+
+            region_id = str(uuid.uuid4())
+            tag_id = str(uuid.uuid4())
+            created_time = datetime.now().isoformat()
+
+            metadata.append({
+                "regionId": region_id,
+                "tagName": label,
+                "created": created_time,
+                "tagId": tag_id,
+                "left": x1 / background.width,
+                "top": y1 / background.height,
+                "width": (x2 - x1) / background.width,
+                "height": (y2 - y1) / background.height
+            })
+
+            placed_images.append((pos_x, pos_y, img))
 
     return background, metadata
 
@@ -75,7 +120,7 @@ def save_image_and_metadata(image, metadata, save_path, index):
 def generate_dataset(image_folder, save_path, background_folder=None, num_images=10):
     images = load_images(image_folder)
     print(f"Loaded {len(images)} images")
-    backgrounds = load_background_images(background_folder) if background_folder else []
+    backgrounds = load_background_images(background_folder) if background_folder else None
 
     for i in range(num_images):
         background = random.choice(backgrounds).copy() if backgrounds else Image.new("RGBA", (1024, 1024), (255, 255, 255, 255))
@@ -99,7 +144,7 @@ def reset_folder(folder):
 
 def main():
     image_folder = "images/cropped_previous"
-    save_path = "generated_dataset"
+    save_path = "generated_dataset2"
     background_folder= "images/backgrounds"
     reset_folder(save_path)
     generate_dataset(image_folder, save_path, background_folder, num_images=10)
