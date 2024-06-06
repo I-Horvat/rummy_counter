@@ -10,7 +10,8 @@ from utils.util import write_to_log, validate_model, early_stopping, train_one_e
 from utils.loaders import load_dataset, device, load_model
 
 
-def train_model(model, optimizer, scheduler, train_loader, val_loader, num_epochs, filename, log_file_name, start_epoch=0):
+def train_model(model, optimizer, scheduler, train_loader, val_loader, num_epochs, filename, log_file_name,
+                start_epoch=0):
     counter = 0
     best_val_loss = float('inf')
     patience_counter = 0
@@ -40,6 +41,11 @@ def train_model(model, optimizer, scheduler, train_loader, val_loader, num_epoch
             write_to_log(log_file_name, f"timestamp: {timestamp}")
             save_checkpoint(model, optimizer, scheduler, epoch, val_loss, checkpoint_full_path, log_file_name)
 
+    write_to_log(log_file_name, f"Training finished after {counter} epochs.")
+    write_to_log(log_file_name, f"Best validation loss: {best_val_loss}")
+    write_to_log(log_file_name, f"Timestamp: {timestamp}")
+
+
 if __name__ == '__main__':
 
     dataset_path = 'drive/MyDrive/zavrsni_slike/extracted/cleaned_and_total'
@@ -65,7 +71,7 @@ if __name__ == '__main__':
         v2.ToDtype(torch.float32, scale=True),
         v2.Resize((num_of_pixels, num_of_pixels), antialias=True),
         v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    
+
     ])
 
     train_loader, val_loader = load_dataset(dataset_path, transform, num_of_pixels, log_file_name, batch_number,
@@ -87,7 +93,8 @@ if __name__ == '__main__':
 
     try:
         print("Starting training")
-        train_model(model, optimizer, scheduler, train_loader, val_loader, num_epochs, filename, log_file_name, start_epoch)
+        train_model(model, optimizer, scheduler, train_loader, val_loader, num_epochs, filename, log_file_name,
+                    start_epoch)
         print("Finished training")
     except Exception as e:
         logging.exception(e)

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import patches
 from torchvision.transforms import v2 as transforms
 
-from utils.util import symbols
+from utils.util import symbols, symbol_to_point
 
 
 def plot_samples(dataset, num_samples):
@@ -36,15 +36,18 @@ def plot_sample(image,predictions, confidence_threshold=0.5):
     predictions=predictions[0]
     image = transforms.ToPILImage()(image)
     plt.imshow(image)
+    true_points=0
 
     for box, label,score in zip(predictions['boxes'], predictions['labels'], predictions['scores']):
         if score > confidence_threshold:
             x_min, y_min, x_max, y_max = box
+            true_points+=symbol_to_point[symbols[label.item()-1]]
 
             width = x_max - x_min
             height = y_max - y_min
             rect = patches.Rectangle((x_min, y_min), width, height, linewidth=2, edgecolor='r', facecolor='none')
             plt.gca().add_patch(rect)
             plt.text(x_min, y_min, symbols[label - 1], fontsize=12, color='r')
-    plt.title("detected objects")
+    plt.title(f"detected objects, total points: {true_points}")
     plt.show()
+    return true_points

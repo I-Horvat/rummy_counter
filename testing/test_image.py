@@ -64,6 +64,8 @@ def test_image(image_path):
 
 def process_image(image):
 
+    threshold = 0.75
+
     global in_features, model
     num_classes = 54
     model = torchvision.models.detection.fasterrcnn_resnet50_fpn(weights=FasterRCNN_ResNet50_FPN_Weights.DEFAULT)
@@ -87,14 +89,14 @@ def process_image(image):
     with torch.no_grad():
         prediction = model(input_tensor)
 
-    print(prediction)
-    points=predictions_to_points(prediction, threshold=0.75)
+    #print(prediction)
+    points=predictions_to_points(prediction, threshold=threshold)
     # draw_prediction(image, prediction[0], confidence_threshold=0.3).show()
-    plot_sample(image, prediction, confidence_threshold=0.75)
+    true_points=plot_sample(image, prediction, confidence_threshold=threshold)
     #get labels of card over threshold, summ the points recieved
-    return points
+    return true_points
 
-def predictions_to_points(predictions, threshold=0.75):
+def predictions_to_points(predictions, threshold=0.5):
     points = 0
     for i in range(len(predictions[0]['boxes'])):
         if predictions[0]['scores'][i] > threshold:
