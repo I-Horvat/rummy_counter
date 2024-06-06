@@ -33,10 +33,13 @@ def load_images(image_folder):
     return images
 
 def resize_image_if_needed(image, max_width, max_height):
+    original_size = image.size
     if image.width > max_width or image.height > max_height:
         image.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
-    return image
-
+        resized = True
+    else:
+        resized = False
+    return image, resized, original_size
 def print_image_sizes(image_folder):
     for file in os.listdir(image_folder):
         if file.endswith('.png') or file.endswith('.jpg'):
@@ -63,6 +66,28 @@ def calculate_iou(bbox1, bbox2):
     iou = inter_area / union_area
 
     return iou
+
+
+def adjust_bbox_for_overlap(bbox1, bbox2):
+    x1, y1, x2, y2 = bbox1
+    x1_p, y1_p, x2_p, y2_p = bbox2
+
+    if x2_p <= x1 or x2 <= x1_p or y2_p <= y1 or y2 <= y1_p:
+        return bbox1  # No overlap
+
+    overlap_x1 = max(x1, x1_p)
+    overlap_y1 = max(y1, y1_p)
+    overlap_x2 = min(x2, x2_p)
+    overlap_y2 = min(y2, y2_p)
+
+    # Adjust the original bbox to exclude the overlap region
+    new_x1 = x1 if x1 < overlap_x1 else overlap_x2
+    new_y1 = y1 if y1 < overlap_y1 else overlap_y2
+    new_x2 = x2 if x2 > overlap_x2 else overlap_x1
+    new_y2 = y2 if y2 > overlap_y2 else overlap_y1
+
+    return [new_x1, new_y1, new_x2, new_y2]
+
 def place_images_on_background(background, images, min_area=12000, max_iou=0.8):
     max_width = background.width
     max_height = background.height
@@ -72,13 +97,19 @@ def place_images_on_background(background, images, min_area=12000, max_iou=0.8):
     placed_bboxes = []
 
     for img, label in selected_images:
-        img = resize_image_if_needed(img, max_width // 2, max_height // 2)
+        img, resized, original_size = resize_image_if_needed(img, max_width // 2, max_height // 2)
+
         max_x = background.width - img.width
         max_y = background.height - img.height
         pos_x = random.randint(0, max_x)
         pos_y = random.randint(0, max_y)
 
         bbox = [pos_x, pos_y, pos_x + img.width, pos_y + img.height]
+
+        if resized:
+            bbox[2] = pos_x + img.width
+            bbox[3] = pos_y + img.height
+
         bbox = check_bbox_integrity(bbox, max_width, max_height, min_area)
 
         if bbox is not None:

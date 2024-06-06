@@ -18,6 +18,8 @@ class CardDataset(Dataset):
                             os.path.isdir(os.path.join(self.root_dir, folder))]
         self.num_of_pixels = num_of_pixels
         self.counter = 0
+        #TODO change min_area to 12000 for training
+        self.min_area = 0
 
     def load_data(self):
         data = {}
@@ -42,7 +44,7 @@ class CardDataset(Dataset):
 
     def __getitem__(self, idx):
         self.counter += 1
-        if self.counter > len(self.image_names):
+        if self.counter >= len(self.image_names):
             print('All images have been used, starting from the beginning')
             self.counter = 0
             return self.__getitem__(0)
@@ -62,8 +64,8 @@ class CardDataset(Dataset):
             bbox_y1 = region['top'] * self.num_of_pixels
             bbox_x2 = (region['left'] + region['width']) * self.num_of_pixels
             bbox_y2 = (region['top'] + region['height']) * self.num_of_pixels
-
-            bbox = check_bbbox_integrity([bbox_x1, bbox_y1, bbox_x2, bbox_y2], image, min_area=12000)
+            #was 12000
+            bbox = check_bbbox_integrity([bbox_x1, bbox_y1, bbox_x2, bbox_y2], image, min_area=self.min_area)
             if bbox is not None:
                 boxes.append(bbox)
                 labels.append(region['tagName'])
@@ -90,7 +92,7 @@ class CardDataset(Dataset):
             new_boxes = []
             new_labels = []
             for i in range(len(target_out['boxes'])):
-                bbox = check_bbbox_integrity(target_out['boxes'][i], image_out, min_area=12000)
+                bbox = check_bbbox_integrity(target_out['boxes'][i], image_out, min_area=self.min_area)
                 if bbox is not None:
                     new_boxes.append(bbox)
                     new_labels.append(target_out['labels'][i])
