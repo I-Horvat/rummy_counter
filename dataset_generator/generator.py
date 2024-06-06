@@ -1,6 +1,5 @@
 import os
 import random
-import sys
 from PIL import Image
 import uuid
 import json
@@ -33,13 +32,10 @@ def load_images(image_folder):
     return images
 
 def resize_image_if_needed(image, max_width, max_height):
-    original_size = image.size
     if image.width > max_width or image.height > max_height:
         image.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
-        resized = True
-    else:
-        resized = False
-    return image, resized, original_size
+    return image
+
 def print_image_sizes(image_folder):
     for file in os.listdir(image_folder):
         if file.endswith('.png') or file.endswith('.jpg'):
@@ -48,90 +44,36 @@ def print_image_sizes(image_folder):
                 width, height = img.size
                 print(f"Image: {file} - Width: {width}px, Height: {height}px")
 
-def calculate_iou(bbox1, bbox2):
-    x1, y1, x2, y2 = bbox1
-    x1_p, y1_p, x2_p, y2_p = bbox2
-
-    xi1 = max(x1, x1_p)
-    yi1 = max(y1, y1_p)
-    xi2 = min(x2, x2_p)
-    yi2 = min(y2, y2_p)
-
-    inter_area = max(0, xi2 - xi1) * max(0, yi2 - yi1)
-
-    bbox1_area = (x2 - x1) * (y2 - y1)
-    bbox2_area = (x2_p - x1_p) * (y2_p - y1_p)
-
-    union_area = bbox1_area + bbox2_area - inter_area
-
-    iou = inter_area / union_area
-
-    return iou
-
-def adjust_bbox_for_overlap(bbox1, bbox2):
-    x1, y1, x2, y2 = bbox1
-    x1_p, y1_p, x2_p, y2_p = bbox2
-
-    if x2_p <= x1 or x2 <= x1_p or y2_p <= y1 or y2 <= y1_p:
-        return bbox1
-
-    overlap_x1 = max(x1, x1_p)
-    overlap_y1 = max(y1, y1_p)
-    overlap_x2 = min(x2, x2_p)
-    overlap_y2 = min(y2, y2_p)
-
-    new_x1 = x1 if x1 < overlap_x1 else overlap_x2
-    new_y1 = y1 if y1 < overlap_y1 else overlap_y2
-    new_x2 = x2 if x2 > overlap_x2 else overlap_x1
-    new_y2 = y2 if y2 > overlap_y2 else overlap_y1
-
-    return [new_x1, new_y1, new_x2, new_y2]
-
-def place_images_on_background(background, images, min_area=12000, max_iou=0.8):
+def place_images_on_background(background, images):
     max_width = background.width
     max_height = background.height
     num_images = random.randint(2, 5)
     selected_images = random.sample(images, min(num_images, len(images)))
     metadata = []
-    placed_bboxes = []
-
+    placed_images = []
     for img, label in selected_images:
-        img, resized, original_size = resize_image_if_needed(img, max_width // 2, max_height // 2)
-
+        img = resize_image_if_needed(img, max_width // 2, max_height // 2)
         max_x = background.width - img.width
         max_y = background.height - img.height
         pos_x = random.randint(0, max_x)
         pos_y = random.randint(0, max_y)
 
-        bbox = [pos_x, pos_y, pos_x + img.width, pos_y + img.height]
-        bbox = check_bbox_integrity(bbox, max_width, max_height, min_area)
+        background.paste(img, (pos_x, pos_y), img)
 
-        if bbox is not None:
-            overlap = False
-            for placed_bbox in placed_bboxes:
-                if calculate_iou(bbox, placed_bbox) > max_iou:
-                    overlap = True
-                    break
+        region_id = str(uuid.uuid4())
+        tag_id = str(uuid.uuid4())
+        created_time = datetime.now().isoformat()
 
-            if not overlap:
-                x1, y1, x2, y2 = bbox
-                background.paste(img, (pos_x, pos_y), img)
-                placed_bboxes.append(bbox)
-
-                region_id = str(uuid.uuid4())
-                tag_id = str(uuid.uuid4())
-                created_time = datetime.now().isoformat()
-
-                metadata.append({
-                    "regionId": region_id,
-                    "tagName": label,
-                    "created": created_time,
-                    "tagId": tag_id,
-                    "left": x1 / background.width,
-                    "top": y1 / background.height,
-                    "width": (x2 - x1) / background.width,
-                    "height": (y2 - y1) / background.height
-                })
+        metadata.append({
+            "regionId": region_id,
+            "tagName": label,
+            "created": created_time,
+            "tagId": tag_id,
+            "left": pos_x / background.width,
+            "top": pos_y / background.height,
+            "width": img.width / background.width,
+            "height": img.height / background.height
+        })
 
     return background, metadata
 
