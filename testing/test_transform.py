@@ -2,6 +2,7 @@ import torch
 from torchvision.transforms import v2
 
 from card_dataset.CardDatsSet import CardDataset
+from testing.plotting import plot_samples
 
 num_of_pixels = 1024
 # transform = v2.Compose([
@@ -28,7 +29,7 @@ transform=None
 # ])
 transform = v2.Compose([
     v2.Resize((num_of_pixels, num_of_pixels), antialias=True),
-    v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    #v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 
 ])
 
@@ -45,9 +46,9 @@ transform = v2.Compose([
 #     T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 # ])
 
-card_dataset = CardDataset(root_dir='../../../data_augmentation/cleaned_and_total', transform=transform, num_of_pixels=num_of_pixels)
+# card_dataset = CardDataset(root_dir='../../../data_augmentation/cleaned_and_total', transform=transform, num_of_pixels=num_of_pixels)
 # card_dataset = CardDataset(root_dir='../../../data_augmentation/augmented', transform=transform, num_of_pixels=num_of_pixels)
-#card_dataset = CardDataset(root_dir='../../../data_augmentation/cleaned_and_total', transform=transform, num_of_pixels=num_of_pixels)
+card_dataset = CardDataset(root_dir='../dataset_generator/generated_dataset', transform=transform, num_of_pixels=num_of_pixels)
 
 
 plot_samples(card_dataset,10)

@@ -20,7 +20,7 @@ def plot_samples(dataset, num_samples):
         # plt.imshow(image_tensor.permute(1, 2, 0))
         # plt.title(dataset.image_names[i])
         # plt.show()
-        plot_sample(image, boxes, labels, dataset.image_names[i])
+        plot_sample_default(image, boxes, labels, dataset.image_names[i])
 
 
 def plot_sample_by_name(dataset, image_name):
@@ -30,6 +30,23 @@ def plot_sample_by_name(dataset, image_name):
     labels = target['labels']
     plot_sample(image, boxes, labels, dataset.image_names[index])
 
+
+
+
+
+def plot_sample_default(image, boxes, labels, image_name):
+    plt.figure(figsize=(8, 6))
+    image = (255 * image).byte()
+    plt.imshow(image.permute(1, 2, 0))
+    for box, label in zip(boxes, labels):
+        x_min, y_min, x_max, y_max = box
+        width = x_max - x_min
+        height = y_max - y_min
+        rect = patches.Rectangle((x_min, y_min), width, height, linewidth=2, edgecolor='r', facecolor='none')
+        plt.gca().add_patch(rect)
+        plt.text(x_min, y_min, symbols[label - 1], fontsize=12, color='r')
+    plt.title(image_name)
+    plt.show()
 
 def plot_sample(image,predictions, confidence_threshold=0.5):
     plt.figure(figsize=(8, 6))
