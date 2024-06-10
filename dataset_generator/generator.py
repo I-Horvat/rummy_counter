@@ -1,12 +1,12 @@
 import os
 import random
 import sys
-
 from PIL import Image
 import uuid
 import json
 from datetime import datetime
 import shutil
+
 higher_level_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(higher_level_path)
 
@@ -47,6 +47,7 @@ def print_image_sizes(image_folder):
             with Image.open(img_path) as img:
                 width, height = img.size
                 print(f"Image: {file} - Width: {width}px, Height: {height}px")
+
 def calculate_iou(bbox1, bbox2):
     x1, y1, x2, y2 = bbox1
     x1_p, y1_p, x2_p, y2_p = bbox2
@@ -67,20 +68,18 @@ def calculate_iou(bbox1, bbox2):
 
     return iou
 
-
 def adjust_bbox_for_overlap(bbox1, bbox2):
     x1, y1, x2, y2 = bbox1
     x1_p, y1_p, x2_p, y2_p = bbox2
 
     if x2_p <= x1 or x2 <= x1_p or y2_p <= y1 or y2 <= y1_p:
-        return bbox1  # No overlap
+        return bbox1
 
     overlap_x1 = max(x1, x1_p)
     overlap_y1 = max(y1, y1_p)
     overlap_x2 = min(x2, x2_p)
     overlap_y2 = min(y2, y2_p)
 
-    # Adjust the original bbox to exclude the overlap region
     new_x1 = x1 if x1 < overlap_x1 else overlap_x2
     new_y1 = y1 if y1 < overlap_y1 else overlap_y2
     new_x2 = x2 if x2 > overlap_x2 else overlap_x1
@@ -105,11 +104,6 @@ def place_images_on_background(background, images, min_area=12000, max_iou=0.8):
         pos_y = random.randint(0, max_y)
 
         bbox = [pos_x, pos_y, pos_x + img.width, pos_y + img.height]
-
-        if resized:
-            bbox[2] = pos_x + img.width
-            bbox[3] = pos_y + img.height
-
         bbox = check_bbox_integrity(bbox, max_width, max_height, min_area)
 
         if bbox is not None:
@@ -172,6 +166,7 @@ def load_background_images(background_folder):
             backgrounds.append(background)
 
     return backgrounds
+
 def reset_folder(folder):
     shutil.rmtree(folder)
     os.makedirs(folder)
