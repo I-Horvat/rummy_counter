@@ -11,8 +11,9 @@ def plot_samples(dataset, num_samples):
     random_indices = random.sample(range(len(dataset)), num_samples)
     for i in random_indices:
         image, target = dataset[i]
-        # image = (255 * image).byte()
         image = transforms.ToPILImage()(image)
+        # image = (255 * image).byte()
+
         boxes = target['boxes']
         labels = target['labels']
         plot_sample_default(image, boxes, labels, dataset.image_names[i])
@@ -21,6 +22,8 @@ def plot_samples(dataset, num_samples):
 def plot_sample_by_name(dataset, image_name):
     index = dataset.image_names.index(image_name)
     image, target = dataset[index]
+    # image = transforms.ToPILImage()(image)
+    # image = (255 * image).byte()
     boxes = target['boxes']
     labels = target['labels']
     plot_sample(image, boxes, labels, dataset.image_names[index])
@@ -28,8 +31,6 @@ def plot_sample_by_name(dataset, image_name):
 
 def plot_sample_default(image, boxes, labels, image_name):
     plt.figure(figsize=(8, 6))
-    # image = (255 * image).byte()
-    image = transforms.ToPILImage()(image)
     plt.imshow(image)
     for box, label in zip(boxes, labels):
         x_min, y_min, x_max, y_max = box

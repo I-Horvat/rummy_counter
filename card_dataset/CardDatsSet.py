@@ -18,8 +18,6 @@ class CardDataset(Dataset):
                             os.path.isdir(os.path.join(self.root_dir, folder))]
         self.num_of_pixels = num_of_pixels
         self.counter = 0
-        #TODO change min_area to 12000 for training
-        #nula je da budu svi
         self.min_area = 0
 
     def load_data(self):
@@ -103,6 +101,8 @@ class CardDataset(Dataset):
             target_out['boxes'] = torch.tensor(new_boxes, dtype=torch.float32)
             target_out['labels'] = torch.tensor(new_labels, dtype=torch.long)
             return image_out, target_out
+        else:
+            print("No transform applied")
         return image, target
 
     def load_regions(self, image_name):
