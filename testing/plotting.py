@@ -26,9 +26,6 @@ def plot_sample_by_name(dataset, image_name):
     plot_sample(image, boxes, labels, dataset.image_names[index])
 
 
-
-
-
 def plot_sample_default(image, boxes, labels, image_name):
     plt.figure(figsize=(8, 6))
     # image = (255 * image).byte()

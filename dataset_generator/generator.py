@@ -5,7 +5,7 @@ import uuid
 import json
 from datetime import datetime
 import shutil
-
+import sys
 higher_level_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(higher_level_path)
 
@@ -50,7 +50,6 @@ def place_images_on_background(background, images):
     num_images = random.randint(2, 5)
     selected_images = random.sample(images, min(num_images, len(images)))
     metadata = []
-    placed_images = []
     for img, label in selected_images:
         img = resize_image_if_needed(img, max_width // 2, max_height // 2)
         max_x = background.width - img.width
