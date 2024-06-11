@@ -109,7 +109,7 @@ if __name__ == '__main__':
         # v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
-    threshold = 0.3
-    path = '../images/WhatsApp Image 2024-05-10 at 11.39.36.jpeg'
-    checkpoint = '../models/cleaned_total_augmented/checkpoint_epoch_9.pth'
+    threshold = 0.39
+    path = '../images/WhatsApp Image 2024-06-11 at 18.33.15.jpeg'
+    checkpoint = '../models/cleaned_total_augmented/checkpoint_epoch_18.pth'
     test_image(path, checkpoint, threshold, transform)

@@ -8,7 +8,7 @@ from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import tv_tensors as tv_tensor, tv_tensors
 
-from utils.util import symbol_to_int, check_bbbox_integrity
+from utils.util import symbol_to_int, check_bbbox_integrity, new_symbol_to_int
 
 
 class CardDataset(Dataset):
@@ -83,7 +83,7 @@ class CardDataset(Dataset):
 
         boxes = tv_tensor.BoundingBoxes(boxes, canvas_size=(self.num_of_pixels, self.num_of_pixels), format="xyxy")
 
-        target = {'boxes': boxes, 'labels': torch.tensor([symbol_to_int(label) for label in labels], dtype=torch.long),
+        target = {'boxes': boxes, 'labels': torch.tensor([new_symbol_to_int(label) for label in labels], dtype=torch.long),
                   'image_id': image_name, 'image_path': img_path}
 
         target['area'] = (target['boxes'][:, 3] - target['boxes'][:, 1]) * (
