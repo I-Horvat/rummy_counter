@@ -5,4 +5,4 @@ __pycache__
 *.jpeg
 tensorboard_logs
 dataset_generator/generated_dataset
-dataset_generator/generated_dataset2
+dataset_generator/images/generated_dataset2

@@ -1,5 +1,6 @@
 import os
 import json
+import shutil
 
 import PIL
 import torch
@@ -18,7 +19,7 @@ class CardDataset(Dataset):
                             os.path.isdir(os.path.join(self.root_dir, folder))]
         self.num_of_pixels = num_of_pixels
         self.counter = 0
-        self.min_area = 0
+        self.min_area = 12000
 
     def load_data(self):
         data = {}
@@ -54,6 +55,7 @@ class CardDataset(Dataset):
         image = image.float() / 255.0
 
         regions = self.load_regions(image_name)
+        original_regions = regions.copy()
 
         boxes = []
         labels = []
@@ -71,11 +73,12 @@ class CardDataset(Dataset):
             else:
                 regions.remove(region)
                 print(f"Region {region['tagName']} in image {image_name} is too small or out of bounds")
-
-        with open(os.path.join(self.root_dir, image_name, 'regions.json'), 'w', encoding='utf-8') as json_file:
-            json.dump(regions, json_file, ensure_ascii=False, indent=4)
+        if len(regions) != len(original_regions):
+            with open(os.path.join(self.root_dir, image_name, 'regions.json'), 'w', encoding='utf-8') as json_file:
+                json.dump(regions, json_file, ensure_ascii=False, indent=4)
         if len(boxes) == 0:
-            print('No boxes found in image: ' + image_name)
+            print(f"No regions found in JSON for {image_name}. Deleting image.")
+            shutil.rmtree(os.path.join(self.root_dir, image_name))
             return self.__getitem__(idx + 1)
 
         boxes = tv_tensor.BoundingBoxes(boxes, canvas_size=(self.num_of_pixels, self.num_of_pixels), format="xyxy")
@@ -85,7 +88,6 @@ class CardDataset(Dataset):
 
         target['area'] = (target['boxes'][:, 3] - target['boxes'][:, 1]) * (
                 target['boxes'][:, 2] - target['boxes'][:, 0])
-
         if self.transform:
             image_out, target_out = self.transform(image, target)
             new_boxes = []
@@ -110,6 +112,9 @@ class CardDataset(Dataset):
         try:
             with open(json_path, 'r', encoding='utf-8') as json_file:
                 json_data = json.load(json_file)
+                if len(json_data) == 0:
+                    print(f"No regions found in JSON for {image_name}. Deleting image.")
+                    shutil.rmtree(os.path.join(self.root_dir, image_name))
             return json_data
         except json.JSONDecodeError:
             print(f"Error decoding JSON for {json_path}. File might be empty or malformed.")

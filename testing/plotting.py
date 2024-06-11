@@ -8,6 +8,7 @@ from utils.util import symbols, symbol_to_point
 
 
 def plot_samples(dataset, num_samples):
+    print("printing samples")
     random_indices = random.sample(range(len(dataset)), num_samples)
     for i in random_indices:
         image, target = dataset[i]
