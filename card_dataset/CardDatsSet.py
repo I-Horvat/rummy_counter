@@ -19,6 +19,7 @@ class CardDataset(Dataset):
         self.num_of_pixels = num_of_pixels
         self.counter = 0
         #TODO change min_area to 12000 for training
+        #nula je da budu svi
         self.min_area = 0
 
     def load_data(self):

@@ -6,8 +6,10 @@ import json
 from datetime import datetime
 import shutil
 import sys
+
 higher_level_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(higher_level_path)
+
 
 def check_bbox_integrity(bbox, image_width, image_height, min_area=12000):
     x1, y1, x2, y2 = bbox
@@ -20,7 +22,9 @@ def check_bbox_integrity(bbox, image_width, image_height, min_area=12000):
         area = (x2 - x1) * (y2 - y1)
         if area >= min_area:
             return [x1, y1, x2, y2]
+
     return None
+
 
 def load_images(image_folder):
     images = []
@@ -31,10 +35,12 @@ def load_images(image_folder):
             images.append((Image.open(img_path).convert("RGBA"), tag_name))
     return images
 
+
 def resize_image_if_needed(image, max_width, max_height):
     if image.width > max_width or image.height > max_height:
         image.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
     return image
+
 
 def print_image_sizes(image_folder):
     for file in os.listdir(image_folder):
@@ -43,6 +49,7 @@ def print_image_sizes(image_folder):
             with Image.open(img_path) as img:
                 width, height = img.size
                 print(f"Image: {file} - Width: {width}px, Height: {height}px")
+
 
 def place_images_on_background(background, images):
     max_width = background.width
@@ -76,6 +83,7 @@ def place_images_on_background(background, images):
 
     return background, metadata
 
+
 def save_image_and_metadata(image, metadata, save_path, index):
     folder_path = os.path.join(save_path, f"image_{index}")
     if not os.path.exists(folder_path):
@@ -87,15 +95,18 @@ def save_image_and_metadata(image, metadata, save_path, index):
     with open(json_path, 'w') as json_file:
         json.dump(metadata, json_file, indent=4)
 
+
 def generate_dataset(image_folder, save_path, background_folder=None, num_images=10):
     images = load_images(image_folder)
     print(f"Loaded {len(images)} images")
     backgrounds = load_background_images(background_folder) if background_folder else None
 
     for i in range(num_images):
-        background = random.choice(backgrounds).copy() if backgrounds else Image.new("RGBA", (1024, 1024), (255, 255, 255, 255))
+        background = random.choice(backgrounds).copy() if backgrounds else Image.new("RGBA", (1024, 1024),
+                                                                                     (255, 255, 255, 255))
         composed_image, metadata = place_images_on_background(background, images)
         save_image_and_metadata(composed_image, metadata, save_path, i)
+
 
 def load_background_images(background_folder):
     backgrounds = []
@@ -108,18 +119,21 @@ def load_background_images(background_folder):
 
     return backgrounds
 
+
 def reset_folder(folder):
     shutil.rmtree(folder)
     os.makedirs(folder)
     print(f"Folder {folder} has been reset")
 
+
 def main():
     image_folder = "images/cropped_previous"
     save_path = "generated_dataset2"
-    background_folder= "images/backgrounds"
+    background_folder = "images/backgrounds"
     reset_folder(save_path)
     generate_dataset(image_folder, save_path, background_folder, num_images=10)
     #print_image_sizes(image_folder)
+
 
 if __name__ == "__main__":
     main()
