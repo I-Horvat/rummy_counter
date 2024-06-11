@@ -65,7 +65,6 @@ class CardDataset(Dataset):
             bbox_y1 = region['top'] * self.num_of_pixels
             bbox_x2 = (region['left'] + region['width']) * self.num_of_pixels
             bbox_y2 = (region['top'] + region['height']) * self.num_of_pixels
-            #was 12000
             bbox = check_bbbox_integrity([bbox_x1, bbox_y1, bbox_x2, bbox_y2], image, min_area=self.min_area)
             if bbox is not None:
                 boxes.append(bbox)
