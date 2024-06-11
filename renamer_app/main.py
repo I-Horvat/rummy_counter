@@ -83,6 +83,12 @@ class DatasetViewerApp:
             if self.current_index >= len(self.dataset):
                 self.current_index = 0
             self.load_image()
+    def plot_with_green_border(self, image, bbox):
+        fig, ax = plt.subplots(1)
+        ax.imshow(image)
+        rect = patches.Rectangle((bbox[0], bbox[1]), bbox[2] - bbox[0], bbox[3] - bbox[1], linewidth=2, edgecolor='g', facecolor='none')
+        ax.add_patch(rect)
+        plt.show()
 
     def print_joker_coordinates(self):
         print("Joker coordinates:")
@@ -103,8 +109,10 @@ class DatasetViewerApp:
         return False
     def rename_region(self):
         for i, label in enumerate(self.current_labels):
-            if symbols[label -1] == "JOKER":
+            if new_symbols[label -1] == "JOKER":
                 bounding_box = self.current_boxes[i]
+                image_np = self.current_image.permute(1, 2, 0).numpy()
+                self.plot_with_green_border(image_np, bounding_box)
                 new_name = simpledialog.askstring("Rename Region", f"Enter new name for the joker with bbox{bounding_box}:")
                 if new_name:
                     self.current_labels[i] = new_symbols.index(new_name) + 1
@@ -114,6 +122,7 @@ class DatasetViewerApp:
             region['tagName'] = new_symbols[self.current_labels[i]-1]
         with open(os.path.join(self.root_dir, self.name, 'regions.json'), 'w', encoding='utf-8') as json_file:
             json.dump(regions, json_file, ensure_ascii=False, indent=4)
+        self.next_image()
 
 if __name__ == "__main__":
     num_of_pixels = 1024

@@ -18,7 +18,7 @@ def count_cards_per_class(path):
     return card_count
 
 if __name__ == '__main__':
-    path='../images/cleaned_and_total'
+    path='../images/total_generated_augmented'
     card_count=count_cards_per_class(path)
     print(card_count)
     print(card_count.keys().__len__())
