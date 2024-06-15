@@ -13,7 +13,7 @@ import os
 
 from torchvision.transforms import v2
 
-from card_dataset.CardDatsSet import CardDataset
+from card_dataset.CardDataSet import CardDataset
 from testing.plotting import plot_sample_default, plot_sample_default_new_symbols
 from utils.util import symbols, new_symbols
 

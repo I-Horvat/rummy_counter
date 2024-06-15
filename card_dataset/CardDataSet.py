@@ -26,55 +26,42 @@ class CardDataset(Dataset):
         self.load_data_into_memory()
 
 
-    def load_data_into_memory(self):
-        self.images = []
-        self.annotations = []
-        print(f"Loading images from {self.root_dir}")
 
-        for folder in os.listdir(self.root_dir):
-            if os.path.isdir(os.path.join(self.root_dir, folder)):
-                img_path = os.path.join(self.root_dir, folder, 'original_image.png')
-                if os.path.exists(img_path):
-                    try:
-                        image = Image.open(img_path).convert("RGB")
-                        self.images.append(image)
-                        json_path = os.path.join(self.root_dir, folder, 'regions.json')
-                        if os.path.exists(json_path):
-                            with open(json_path, 'r', encoding='utf-8') as json_file:
-                                json_data = json.load(json_file)
-                                self.annotations.append(json_data)
-                        else:
-                            print(f"JSON file does not exist: {json_path}")
-                            self.annotations.append([])
-                    except PIL.UnidentifiedImageError:
-                        print(f"Error opening image: {img_path}. File might be empty or malformed.")
-                        self.images.append(None)
-                        self.annotations.append([])
-                else:
-                    print(f"Image does not exist: {img_path}")
-                    self.images.append(None)
-                    self.annotations.append([])
-        self.image_names = [folder for folder in os.listdir(self.root_dir) if
-                            os.path.isdir(os.path.join(self.root_dir, folder))]
+    def load_data_into_memory(self):
+        print(f"Loading images from {self.root_dir}")
+        num_workers = os.cpu_count()
+        print(f"Number of workers: {num_workers} in os")
+        using_workers = 2
+        print(f"Using {using_workers} workers")
+        total_images = len(self.image_names)
+        ten_percent = total_images // 10
+
+        with ThreadPoolExecutor(max_workers=using_workers) as executor:
+            results = list(executor.map(self.load_single_image, self.image_names))
+            for i, (image, annotation) in enumerate(results):
+                if image:
+                    self.images.append(image)
+                    self.annotations.append(annotation)
+                if (i + 1) % ten_percent == 0:
+                    print(f"Loaded {i + 1} / {total_images} images ({((i + 1) / total_images) * 100:.0f}%)")
+
         print(f"Loaded {len(self.images)} images")
 
-    def load_data(self):
-        data = {}
-        for folder in os.listdir(self.root_dir):
-            if os.path.isdir(os.path.join(self.root_dir, folder)):
+    def load_single_image(self, folder):
+        img_path = os.path.join(self.root_dir, folder, 'original_image.png')
+        if os.path.exists(img_path):
+            try:
+                image = Image.open(img_path).convert("RGB")
                 json_path = os.path.join(self.root_dir, folder, 'regions.json')
                 if os.path.exists(json_path):
-                    try:
-                        with open(json_path, 'r', encoding='utf-8') as json_file:
-                            json_data = json.load(json_file)
-                            data[folder] = json_data
-                    except json.JSONDecodeError:
-                        print(f"Error decoding JSON for {json_path}. File might be empty or malformed.")
-                        data[folder] = []
+                    with open(json_path, 'r', encoding='utf-8') as json_file:
+                        json_data = json.load(json_file)
+                    return image, json_data
                 else:
-                    print(f"JSON file does not exist: {json_path}")
-                    data[folder] = []
-        return data
+                    return image, []
+            except PIL.UnidentifiedImageError:
+                return None, []
+        return None, []
 
     def __len__(self):
         return len(self.image_names)

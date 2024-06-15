@@ -1,7 +1,7 @@
 import torch
 from torchvision.transforms import v2
 
-from card_dataset.CardDatsSet import CardDataset
+from card_dataset.CardDataSet import CardDataset
 from testing.plotting import plot_samples, plot_samples_new_symbols
 
 # transform = v2.Compose([

@@ -4,7 +4,7 @@ import uuid
 
 from torchvision.transforms import v2
 
-from card_dataset.CardDatsSet import CardDataset
+from card_dataset.CardDataSet import CardDataset
 from utils.util import symbols
 
 root_folder = "augmented"

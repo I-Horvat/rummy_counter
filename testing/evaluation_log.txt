@@ -1,0 +1,36 @@
+Loading dataset...
+Dataset size: 2306
+Dataset loaded
+Train size: 1844
+Validation size: 462
+Batch size: 8
+Number of workers: 1
+Model loaded
+Number of classes: 55
+Loading dataset...
+Dataset size: 2306
+Dataset loaded
+Train size: 1844
+Validation size: 462
+Batch size: 8
+Number of workers: 1
+Model loaded
+Number of classes: 55
+Loading dataset...
+Dataset size: 2306
+Dataset loaded
+Train size: 1844
+Validation size: 462
+Batch size: 8
+Number of workers: 1
+Model loaded
+Number of classes: 55
+Loading dataset...
+Dataset size: 2306
+Dataset loaded
+Train size: 1844
+Validation size: 462
+Batch size: 8
+Number of workers: 1
+Model loaded
+Number of classes: 55

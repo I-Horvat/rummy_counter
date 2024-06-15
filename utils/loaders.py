@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 from torchvision.models.detection import FasterRCNN_ResNet50_FPN_Weights
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
-from card_dataset.CardDatsSet import CardDataset
+from card_dataset.CardDataSet import CardDataset
 from utils.util import write_to_log
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
