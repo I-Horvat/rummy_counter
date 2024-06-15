@@ -28,16 +28,27 @@ def evaluate_model(model, data_loader, device, iou_threshold=0.5):
     all_true_boxes = []
     all_pred_boxes = []
     with torch.no_grad():
+        i=0
         for images, targets in data_loader:
             images = list(img.to(device) for img in images)
             targets = [{k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in t.items()} for t in targets]
             outputs = model(images)
 
             true_boxes = get_all_boxes(targets)
-            pred_boxes = get_all_boxes([output['boxes'] for output in outputs])
+            pred_boxes = [output['boxes'].cpu().numpy() for output in outputs]
+            pred_scores = [output['scores'].cpu().numpy() for output in outputs]
 
+            for pred_box, pred_score in zip(pred_boxes, pred_scores):
+                indices = np.argsort(pred_score)[-len(true_boxes):]
+                selected_boxes = pred_box[indices]
+                all_pred_boxes.append(selected_boxes)
             all_true_boxes.append(true_boxes)
-            all_pred_boxes.append(pred_boxes)
+
+            i+=1
+            if i>2:
+                break
+            print(f'Batch {i} done')
+
 
     tp = 0
     fp = 0
@@ -45,9 +56,11 @@ def evaluate_model(model, data_loader, device, iou_threshold=0.5):
     for true_boxes, pred_boxes in zip(all_true_boxes, all_pred_boxes):
         matched = []
         for pb in pred_boxes:
-            if any(calculate_iou(pb, tb) > iou_threshold for tb in true_boxes):
-                tp += 1
-                matched.append(pb)
+            for tb in true_boxes:
+                if calculate_iou(pb, tb) > iou_threshold:
+                    tp += 1
+                    matched.append(pb)
+                    break
             else:
                 fp += 1
 
@@ -55,9 +68,9 @@ def evaluate_model(model, data_loader, device, iou_threshold=0.5):
             if not any(calculate_iou(tb, mb) > iou_threshold for mb in matched):
                 fn += 1
 
-    precision = tp / (tp + fp)
-    recall = tp / (tp + fn)
-    accuracy = 2 * (precision * recall) / (precision + recall)
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+    accuracy = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
 
     return precision, recall, accuracy
 
@@ -80,4 +93,5 @@ if __name__ == '__main__':
                                             num_workers)
 
     model = load_model(num_classes=num_classes, log_file_name=log_file_name)
-    evaluate_model(model, train_loader, device, iou_threshold=0.5)
+    precision,recall,accuraccy=evaluate_model(model, val_loader, device, iou_threshold=0.5)
+    print(f'Precision: {precision}, Recall: {recall}, Accuracy: {accuraccy}')
