@@ -106,10 +106,10 @@ if __name__ == '__main__':
         v2.ToImage(),
         v2.ToDtype(torch.float32, scale=True),
         v2.Resize((num_of_pixels, num_of_pixels), antialias=True),
-        # v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
-    threshold = 0.39
-    path = '../images/WhatsApp Image 2024-06-11 at 18.33.15.jpeg'
+    threshold = 0.6
+    path = '../images/WhatsApp Image 2024-06-11 at 21.51.57.jpeg'
     checkpoint = '../models/cleaned_total_augmented/checkpoint_epoch_18.pth'
     test_image(path, checkpoint, threshold, transform)
