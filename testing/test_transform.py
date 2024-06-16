@@ -31,7 +31,7 @@ transform = None
 #     #v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 #
 # ])
-num_of_pixels = 256
+num_of_pixels = 1024
 
 transform = v2.Compose([
     v2.ToImage(),
@@ -63,12 +63,12 @@ transform = v2.Compose([
 # ])
 
 #card_dataset = CardDataset(root_dir='../../../data_augmentation/cleaned_and_total', transform=transform, num_of_pixels=num_of_pixels)
-# card_dataset = CardDataset(root_dir='../../../data_augmentation/augmented', transform=transform, num_of_pixels=num_of_pixels)
+card_dataset = CardDataset(root_dir='../data_augmentation/augmented_final', transform=transform, num_of_pixels=num_of_pixels)
 #card_dataset = CardDataset(root_dir='../images/cleaned_and_total', transform=transform, num_of_pixels=num_of_pixels)
 
 #card_dataset = CardDataset(root_dir='../images/total_generated_augmented', transform=transform, num_of_pixels=num_of_pixels)
-card_dataset = CardDataset(root_dir='../images/total_generated_augmented', transform=transform, num_of_pixels=num_of_pixels)
-# card_dataset = CardDataset(root_dir='../data_augmentation/augmented', transform=transform, num_of_pixels=num_of_pixels)
+# card_dataset = CardDataset(root_dir='../images/total_generated_augmented', transform=transform, num_of_pixels=num_of_pixels)
+#card_dataset = CardDataset(root_dir='../dataset_generator/images/new_generated', transform=transform, num_of_pixels=num_of_pixels)
 
 
 #plot_samples(card_dataset,20)

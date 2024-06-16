@@ -20,7 +20,9 @@ class CardDataset(Dataset):
                             os.path.isdir(os.path.join(self.root_dir, folder))]
         self.num_of_pixels = num_of_pixels
         self.counter = 0
-        self.min_area = 0
+        self.min_area = 24000
+
+
 
     def load_data(self):
         data = {}

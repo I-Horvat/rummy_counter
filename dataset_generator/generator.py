@@ -80,7 +80,6 @@ def place_images_on_background(background, images):
             "width": width,
             "height": height
         })
-
     return background, metadata
 
 
@@ -103,7 +102,9 @@ def generate_dataset(image_folder, save_path, background_folder=None, num_images
     images = [(resize_image_if_needed(img, 200, 256), label) for img, label in images]
     print(f"Loaded {len(images)} images")
     backgrounds = load_background_images(background_folder) if background_folder else []
+    print(f"Loaded {len(backgrounds)} backgrounds")
     backgrounds = [background.resize((1024, 1024), Image.Resampling.LANCZOS) for background in backgrounds]
+    print(f"Resized backgrounds")
     for i in range(num_images):
         background = random.choice(backgrounds).copy() if backgrounds else Image.new("RGBA", (1024, 1024),
                                                                                      (255, 255, 255, 255))
@@ -113,13 +114,11 @@ def generate_dataset(image_folder, save_path, background_folder=None, num_images
 
 def load_background_images(background_folder):
     backgrounds = []
-    for file in os.listdir(background_folder):
-        if file.endswith('.png') or file.endswith('.jpg'):
-            img_path = os.path.join(background_folder, file)
-            background = Image.open(img_path).convert("RGBA")
-            resize_image_if_needed(background, 1024, 1024)
-            backgrounds.append(background)
-
+    for folder in os.listdir(background_folder):
+        for file in os.listdir(os.path.join(background_folder, folder)):
+            if file.endswith('.png') or file.endswith('.jpg'):
+                img_path = os.path.join(background_folder, folder, file)
+                backgrounds.append(Image.open(img_path).convert("RGBA"))
     return backgrounds
 
 
@@ -131,10 +130,10 @@ def reset_folder(folder):
 
 def main():
     image_folder = "images/cropped_previous"
-    save_path = "images/generated_dataset_final_v2"
-    background_folder = "images/backgrounds"
+    save_path = "images/new_generated"
+    background_folder = "images/backgrounds/images"
     reset_folder(save_path)
-    generate_dataset(image_folder, save_path, background_folder, num_images=600)
+    generate_dataset(image_folder, save_path, background_folder, num_images=4000)
     #print_image_sizes(image_folder)
 
 

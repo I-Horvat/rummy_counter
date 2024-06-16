@@ -6,3 +6,8 @@ __pycache__
 tensorboard_logs
 dataset_generator/generated_dataset
 dataset_generator/images/generated_dataset2
+data_augmentation/augmented
+data_augmentation/augmented2
+data_augmentation/augmented3
+data_augmentation/augmented_final
+data_augmentation/test

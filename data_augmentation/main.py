@@ -5,23 +5,24 @@ import uuid
 from torchvision.transforms import v2
 
 from card_dataset.CardDataSet import CardDataset
-from utils.util import symbols
+from utils.util import symbols, new_symbols
 
-root_folder = "augmented"
-os.makedirs(root_folder, exist_ok=True)
 
 num_of_pixels = 1024
+
 transform = v2.Compose([
     v2.Resize((num_of_pixels, num_of_pixels), antialias=True),
     v2.RandomResizedCrop((num_of_pixels, num_of_pixels), antialias=True),
     v2.RandomPhotometricDistort(p=1),
     v2.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
-    v2.RandomRotation(10),
+    v2.RandomRotation(20),
+    v2.RandomHorizontalFlip(p=0.5),
+    v2.RandomVerticalFlip(p=0.5),
 ])
 to_pil = v2.ToPILImage()
 
-dataset = CardDataset(root_dir='../dataset_generator/images/generated_dataset_final_v2', transform=transform, num_of_pixels=num_of_pixels)
-def create_augmented_images(num_images=1000):
+dataset = CardDataset(root_dir='../dataset_generator/images/new_generated', transform=transform, num_of_pixels=num_of_pixels)
+def create_augmented_images(num_images,root_folder):
 
     for i, data in enumerate(dataset):
         image = data[0]
@@ -57,7 +58,7 @@ def create_augmented_images(num_images=1000):
             region_id = str(uuid.uuid4())
             tag_id = str(uuid.uuid4())
             adjusted_label = label - 1
-            tag_name = symbols[adjusted_label]
+            tag_name = new_symbols[adjusted_label]
             entry = {
                 "regionId": region_id,
                 "tagName": tag_name,
@@ -75,5 +76,7 @@ def create_augmented_images(num_images=1000):
             break
 
 if __name__ == '__main__':
-    create_augmented_images(600)
+    root_folder = "augmented_final"
+    os.makedirs(root_folder, exist_ok=True)
+    create_augmented_images(3000,root_folder)
     print("Done")
