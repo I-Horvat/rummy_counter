@@ -21,9 +21,9 @@ def train_model(model, optimizer, scheduler, train_loader, val_loader, num_epoch
         write_to_log(log_file_name, f"Epoch {epoch + 1}/{num_epochs}")
         train_loss = train_one_epoch(model, train_loader, optimizer, log_file_name)
         epoch_time = time.time() - epoch_start_time
-
+        previous=scheduler.get_last_lr()
+        print(f"Learning rate: {previous}")
         val_loss = validate_model(model, val_loader, device)
-
         scheduler.step(val_loss)
         write_to_log(log_file_name, f'Epoch {epoch + 1}, Train Loss: {train_loss}, Val Loss: {val_loss}')
         write_to_log(log_file_name, f"Epoch time: {epoch_time} seconds")
@@ -48,19 +48,20 @@ def train_model(model, optimizer, scheduler, train_loader, val_loader, num_epoch
 
 if __name__ == '__main__':
 
-    dataset_path = 'drive/MyDrive/zavrsni_slike/extracted/cleaned_and_total'
+    # dataset_path = 'drive/MyDrive/zavrsni_slike/extracted/cleaned_and_total'
+    dataset_path = '../images/final'
 
     checkpoint_filename = f'checkpoint_epoch_12.pth'
-    filename = '21epoch_adam0.0005_rOnPlat_8batch_v2'
+    filename = '2epoch_'
     checkpoint_full_path = f'models/{filename}/{checkpoint_filename}'
 
     log_file_name = make_folders_setup_logging(filename)
 
-    num_epochs = 21
+    num_epochs = 2
     num_of_pixels = 1024
     batch_number = 8
     num_workers = 1
-    num_classes = 54
+    num_classes = 55
 
     start_epoch = 0
 

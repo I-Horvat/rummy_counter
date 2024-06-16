@@ -11,3 +11,4 @@ data_augmentation/augmented2
 data_augmentation/augmented3
 data_augmentation/augmented_final
 data_augmentation/test
+*.zip

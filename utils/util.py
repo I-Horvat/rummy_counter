@@ -87,7 +87,6 @@ def train_one_epoch(model, train_loader, optimizer, log_file_name):
 
         optimizer.zero_grad()
         loss_dict = model(images, targets)
-
         losses = sum(loss for loss in loss_dict.values())
         if torch.isnan(losses):
             write_to_log(log_file_name, f"NaN detected in batch")

@@ -6,12 +6,13 @@ from concurrent.futures import ThreadPoolExecutor
 import PIL
 import torch
 from PIL import Image
+from PIL.ImageFile import ImageFile
 from torch.utils.data import Dataset
 from torchvision import tv_tensors as tv_tensor, tv_tensors
 
-from utils.util import symbol_to_int, check_bbbox_integrity, new_symbol_to_int
+from utils.util import  check_bbbox_integrity, new_symbol_to_int
 
-
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 class CardDataset(Dataset):
     def __init__(self, root_dir, transform=None, num_of_pixels=512):
         self.root_dir = root_dir
@@ -20,8 +21,7 @@ class CardDataset(Dataset):
                             os.path.isdir(os.path.join(self.root_dir, folder))]
         self.num_of_pixels = num_of_pixels
         self.counter = 0
-        self.min_area = 24000
-
+        self.min_area = int(num_of_pixels * num_of_pixels * 0.04)
 
 
     def load_data(self):
@@ -58,7 +58,6 @@ class CardDataset(Dataset):
         image = image.float() / 255.0
 
         regions = self.load_regions(image_name)
-        original_regions = regions.copy()
 
         boxes = []
         labels = []
@@ -75,12 +74,9 @@ class CardDataset(Dataset):
             else:
                 regions.remove(region)
                 print(f"Region {region['tagName']} in image {image_name} is too small or out of bounds")
-        if len(regions) != len(original_regions):
-            with open(os.path.join(self.root_dir, image_name, 'regions.json'), 'w', encoding='utf-8') as json_file:
-                json.dump(regions, json_file, ensure_ascii=False, indent=4)
+
         if len(boxes) == 0:
-            print(f"No regions found in JSON for {image_name}. Deleting image.")
-            shutil.rmtree(os.path.join(self.root_dir, image_name))
+            print(f"No regions found in JSON for {image_name}")
             return self.__getitem__(idx + 1)
 
         boxes = tv_tensor.BoundingBoxes(boxes, canvas_size=(self.num_of_pixels, self.num_of_pixels), format="xyxy")
