@@ -130,12 +130,24 @@ def reset_folder(folder):
 
 def main():
     image_folder = "images/cropped_previous"
-    save_path = "images/new_generated"
+    save_path = "new300"
     background_folder = "images/backgrounds/images"
     reset_folder(save_path)
-    generate_dataset(image_folder, save_path, background_folder, num_images=4000)
+    generate_dataset(image_folder, save_path, background_folder, num_images=5)
     #print_image_sizes(image_folder)
 
+def copy_folders(src,dst,num_folders):
+    folder_names=os.listdir(src)
+    random_folders=random.sample(folder_names,num_folders)
+    for folder in random_folders:
+        try:
+            shutil.copytree(os.path.join(src,folder),os.path.join(dst,folder))
+        except:
+            print(f"failed to copy {folder}")
+    print(f"copied {num_folders} folders")
 
 if __name__ == "__main__":
-    main()
+    src_folder='../images/generated_and_original'
+    dst_folder='../images/cleaned_and_total'
+    copy_folders(src_folder,dst_folder,1000)
+    # main()

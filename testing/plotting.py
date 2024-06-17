@@ -2,8 +2,10 @@ import random
 
 import matplotlib.pyplot as plt
 from matplotlib import patches
+from torch.utils.data import DataLoader
 from torchvision.transforms import v2 as transforms
 
+from utils.loaders import collate_fn
 from utils.util import symbols, symbol_to_point, new_symbols
 
 
@@ -34,11 +36,11 @@ def plot_samples_new_symbols(dataset, num_samples):
 def plot_sample_by_name(dataset, image_name):
     index = dataset.image_names.index(image_name)
     image, target = dataset[index]
-    # image = transforms.ToPILImage()(image)
+    image = transforms.ToPILImage()(image)
     # image = (255 * image).byte()
     boxes = target['boxes']
     labels = target['labels']
-    plot_sample(image, boxes, labels, dataset.image_names[index])
+    plot_sample_default_new_symbols(image, boxes, labels, dataset.image_names[index])
 
 
 def plot_sample_default(image, boxes, labels, image_name):
@@ -58,6 +60,7 @@ def plot_sample_default(image, boxes, labels, image_name):
 def plot_samples_new_symbols(dataset, num_samples):
     print("printing samples")
     random_indices = random.sample(range(len(dataset)), num_samples)
+    all_indexes = []
     for i in random_indices:
         image, target = dataset[i]
         image = transforms.ToPILImage()(image)

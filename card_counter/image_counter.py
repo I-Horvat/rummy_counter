@@ -9,6 +9,6 @@ def count_folder_images(folder_path):
     return count
 
 if __name__ == '__main__':
-    folder_path = '../dataset_generator/images/new_generated'
+    folder_path = '../images/cleaned_and_total'
     print(count_folder_images(folder_path))
     print("Done")

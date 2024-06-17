@@ -49,7 +49,7 @@ def train_model(model, optimizer, scheduler, train_loader, val_loader, num_epoch
 if __name__ == '__main__':
 
     # dataset_path = 'drive/MyDrive/zavrsni_slike/extracted/cleaned_and_total'
-    dataset_path = '../images/final'
+    dataset_path = '../images/gen_og_small_600'
 
     checkpoint_filename = f'checkpoint_epoch_12.pth'
     filename = '2epoch_'

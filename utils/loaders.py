@@ -2,7 +2,7 @@ import torch
 import torchvision
 from torch.utils.data import DataLoader
 from torchvision.models.detection import FasterRCNN_ResNet50_FPN_Weights
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor, FasterRCNN_ResNet50_FPN_V2_Weights
 
 from card_dataset.CardDataSet import CardDataset
 from utils.util import write_to_log
@@ -41,7 +41,8 @@ def load_dataset(dataset_path, transform, num_of_pixels, log_file_name, batch_nu
 
 
 def load_model(num_classes,log_file_name):
-    model = torchvision.models.detection.fasterrcnn_resnet50_fpn(weights=FasterRCNN_ResNet50_FPN_Weights.DEFAULT)
+    # model = torchvision.models.detection.fasterrcnn_resnet50_fpn(weights=FasterRCNN_ResNet50_FPN_Weights.DEFAULT)
+    model = torchvision.models.detection.fasterrcnn_resnet50_fpn_v2(weights=FasterRCNN_ResNet50_FPN_V2_Weights.DEFAULT)
     in_features = model.roi_heads.box_predictor.cls_score.in_features
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
     for param in model.parameters():
